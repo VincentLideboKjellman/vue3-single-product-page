@@ -5,11 +5,13 @@
 
 <script>
 import Socks from './components/Socks.vue'
+import Header from './components/Header.vue'
 
 export default {
   name: 'App',
   components: {
-    Socks
+    Socks,
+    Header
   }
 }
 </script>
