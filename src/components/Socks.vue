@@ -1,6 +1,15 @@
 <template>
-    <h1>{{ productData.products.socks.name }}</h1>
-    <p>{{ productData.products.socks.description }}</p>
+    <div class="product-display">
+        <div class="product-container">
+          <div class="product-image">
+            <!-- image goes here -->
+          </div>
+          <div class="product-info">
+            <h1>{{ productData.products.socks.name }}</h1>
+            <p>{{ productData.products.socks.description }}</p>
+          </div>
+        </div>
+      </div>
 </template>
 
 <script>
@@ -31,20 +40,28 @@ export default {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h3 {
-  margin: 40px 0 0;
+h1 {
+  font-size: 50px;
 }
-ul {
-  list-style-type: none;
-  padding: 0;
+p {
+  font-size: 22px;
 }
-li {
-  display: inline-block;
-  margin: 0 10px;
+
+.product-display {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
 }
-a {
-  color: #42b983;
+
+.product-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.product-image,
+.product-info {
+  width: 50%;
 }
 </style>
