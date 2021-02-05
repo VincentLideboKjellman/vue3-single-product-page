@@ -5,23 +5,33 @@
     <div class="product-display">
         <div class="product-container">
           <div class="product-image">
-            <img :src="socks.img" alt="Socks image">
+            <img   :class="[inStock < 1 ? 'out-of-stock-img' : '']" :src="image" alt="Socks image">
+            <!-- :class="{'out-of-stock-img': !socks.inStock }" Fungerar också -->
           </div>
           <div class="product-info">
-            <h1>{{ socks.name }}</h1>
+            <h1>{{ title }}</h1>
             <p>{{ socks.description }}, For more check our <a :href="externData.links.google">this page</a></p>
-            <p v-if="socks.inventory > 10">In Stock</p>
-            <p v-else-if="socks.inventory <= 10 && socks.inventory > 0">Almost out of stock!</p>
-            <p v-else>Out Of Stock</p>
+            <!-- <p v-if="socks.variants.qantity > 10">In Stock</p>
+            <p v-else-if="socks.variants.qantity <= 10 && socks.variants.qantity > 0">Almost out of stock!</p>
+            <p v-else>Out Of Stock</p> -->
+            <p v-if="inStock > 1">In Stock</p>
+            <p v-else>Out of Stock</p>
             <p v-if="socks.onSale">On Sale</p>
             <ul>
               <li :key="detail.index" v-for="detail in socks.details">{{ detail }}</li>
             </ul>
-            <span :key="variant.id" v-for="variant in socks.variants" @mouseover="updateImage(variant.image)">{{variant.color}}</span>
+            <div
+              :key="variant.id"
+              v-for="(variant, index) in socks.variants" 
+              @mouseover="updateVariant(index)"
+              class="color-circle"
+              :style="{ backgroundColor: variant.color }"
+              >
+            </div>
             <br/>
             <span :key="size.index" v-for="size in socks.sizes">{{size}}</span>
             <br/>
-            <button class="button" @click="addToCart">Add to Cart</button>
+            <button class="button" @click="addToCart" :disabled="inStock < 1" :class="{ disabledButton: inStock < 1 }" >Add to Cart</button>
             <button v-if="cartState.cart > 0" class="button" @click="removeFromCart">Remove</button>
           </div>
         </div>
@@ -29,7 +39,7 @@
 </template>
 
 <script>
-import { reactive } from 'vue';
+import { reactive, computed } from 'vue';
 export default {
 
   setup(){
@@ -40,10 +50,29 @@ export default {
     const removeFromCart = () => {
       cartState.cart -= 1;
     }
-    const updateImage = (variantImage) => {
-      socks.img = variantImage
+    // const updateImage = (variantImage) => {
+    //   socks.img = variantImage
+    // }
+    const updateVariant = (index) => {
+      socks.selectedVariant = index;
     }
 
+    // Computed can use in diffrent ways. in Reactive directly as an object, or the traditional vue 2 way.
+    const title = computed(() => {
+      if(socks.variants[socks.selectedVariant].onSale){
+        return `${socks.brand} ${socks.name} is on Sale!`
+      }
+      else{
+        return `${socks.brand} ${socks.name}`
+      }
+    });
+    // get dynamic data from the specifc object by using the ID (done in updateVariant function)
+    const image = computed(() => {
+      return `${socks.variants[socks.selectedVariant].image}`
+    });
+    const inStock = computed(() => {
+      return `${socks.variants[socks.selectedVariant].quantity}`
+    });
 
     const cartState = reactive({
       cart: 0,
@@ -56,16 +85,17 @@ export default {
     const productData = reactive({
       products:{
         socks: {
+          brand: 'Vue Mastery',
           name: 'Socks',
           description: 'Warm Green Socks',
-          img: '/socks_green.jpg',
+          selectedVariant: 0,
           inventory: 9,
-          onSale: true,
+          // onSale: true,
           details: ['50% cotton', '30% wool', '20% polyester'],
           sizes: ['small', 'medium', 'large'],
           variants: [
-            { id: 2234, color: 'green', image: '/socks_green.jpg' },
-            { id: 2235, color: 'blue', image: '/socks_blue.jpg' }
+            { id: 2234, color: 'green', image: '/socks_green.jpg', quantity: 50, onSale: true },
+            { id: 2235, color: 'blue', image: '/socks_blue.jpg', quantity: 0, onSale: false}
           ]
         },
       }
@@ -79,11 +109,20 @@ export default {
       socks,
       cartState,
       addToCart,
-      updateImage,
-      removeFromCart
+      removeFromCart,
+      title,
+      updateVariant,
+      image,
+      inStock
 
     }
   },
+  // Old way of doing computed, still works
+  // computed: {
+  //   title() {
+  //     return this.socks.brand + ' ' + this.socks.name
+  //   }
+  // }
 }
 </script>
 
@@ -104,7 +143,16 @@ ul {
 span{
   margin-right: 16px;
   }
-
+.out-of-stock-img {
+  opacity: 0.5;
+}
+.color-circle {
+  width: 50px;
+  height: 50px;
+  margin-top: 8px;
+  border: 2px solid #d8d8d8;
+  border-radius: 50%;
+}
 
 .product-display {
   display: flex;
@@ -148,7 +196,10 @@ img {
   text-align: center;
   cursor: pointer;
 }
-
+.disabledButton {
+  background-color: #d8d8d8;
+  cursor: not-allowed;
+}
 .cart {
   margin: 25px 100px;
   float: right;
