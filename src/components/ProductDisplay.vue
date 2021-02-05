@@ -16,10 +16,8 @@
             <p v-else>Out Of Stock</p> -->
             <p v-if="inStock > 1">In Stock</p>
             <p v-else>Out of Stock</p>
-            <p v-if="socks.onSale">On Sale</p>
-            <ul>
-              <li :key="detail.index" v-for="detail in socks.details">{{ detail }}</li>
-            </ul>
+            <!-- <p v-if="socks.variants[socks.selectedVariant].onSale">On Sale</p> -->
+            <ProductDetail :detailData="socks.details" />
             <div
               :key="variant.id"
               v-for="(variant, index) in socks.variants" 
@@ -31,6 +29,7 @@
             <br/>
             <span :key="size.index" v-for="size in socks.sizes">{{size}}</span>
             <br/>
+            <p>Shipping: {{shipping}}</p>
             <button class="button" @click="addToCart" :disabled="inStock < 1" :class="{ disabledButton: inStock < 1 }" >Add to Cart</button>
             <button v-if="cartState.cart > 0" class="button" @click="removeFromCart">Remove</button>
           </div>
@@ -40,9 +39,18 @@
 
 <script>
 import { reactive, computed } from 'vue';
+import ProductDetail from './ProductDetail'
 export default {
-
-  setup(){
+  components: {
+    ProductDetail,
+  },
+  props: {
+    premium: {
+      type: Boolean,
+      required: true
+    }
+  },
+  setup(props){
 
     const addToCart = () => {
       cartState.cart += 1;
@@ -60,7 +68,7 @@ export default {
     // Computed can use in diffrent ways. in Reactive directly as an object, or the traditional vue 2 way.
     const title = computed(() => {
       if(socks.variants[socks.selectedVariant].onSale){
-        return `${socks.brand} ${socks.name} is on Sale!`
+        return `${socks.brand} ${socks.name} SALE!`
       }
       else{
         return `${socks.brand} ${socks.name}`
@@ -72,6 +80,13 @@ export default {
     });
     const inStock = computed(() => {
       return `${socks.variants[socks.selectedVariant].quantity}`
+    });
+    const shipping = computed(() => {
+      if(props.premium){
+        return 'Free'
+      }else{
+        return '2.99$'
+      }
     });
 
     const cartState = reactive({
@@ -113,7 +128,8 @@ export default {
       title,
       updateVariant,
       image,
-      inStock
+      inStock,
+      shipping,
 
     }
   },

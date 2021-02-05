@@ -1,17 +1,23 @@
 <template>
 <Header />
-<Socks />
+<ProductDisplay :premium="premium" />
 </template>
 
 <script>
-import Socks from './components/Socks.vue'
+import ProductDisplay from './components/ProductDisplay.vue'
 import Header from './components/Header.vue'
 
 export default {
   name: 'App',
   components: {
-    Socks,
+    ProductDisplay,
     Header
+  },
+  data() {
+    return {
+      cart: 0,
+      premium: true
+    }
   }
 }
 </script>
