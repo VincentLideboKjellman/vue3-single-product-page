@@ -1,7 +1,5 @@
 <template>
-
-    <div class="cart">Cart({{ cartState.cart }})</div>
-
+    <!-- <div class="cart">Cart({{ cartState.cart }})</div> -->
     <div class="product-display">
         <div class="product-container">
           <div class="product-image">
@@ -31,14 +29,15 @@
             <br/>
             <p>Shipping: {{shipping}}</p>
             <button class="button" @click="addToCart" :disabled="inStock < 1" :class="{ disabledButton: inStock < 1 }" >Add to Cart</button>
-            <button v-if="cartState.cart > 0" class="button" @click="removeFromCart">Remove</button>
+            <button class="button" @click="removeFromCart">Remove</button>
+            <!-- <button v-if="cartState.cart > 0" class="button" @click="removeFromCart">Remove</button> -->
           </div>
         </div>
       </div>
 </template>
 
 <script>
-import { reactive, computed } from 'vue';
+import { reactive, computed, watch } from 'vue';
 import ProductDetail from './ProductDetail'
 export default {
   components: {
@@ -48,15 +47,16 @@ export default {
     premium: {
       type: Boolean,
       required: true
-    }
+    },
+    // emits: ['add-to-cart']
   },
-  setup(props){
-
+  setup(props, context){
+    
     const addToCart = () => {
-      cartState.cart += 1;
+      context.emit('add-to-cart', socks.variants[socks.selectedVariant].id );
     }
     const removeFromCart = () => {
-      cartState.cart -= 1;
+      context.emit('remove-from-cart', socks.variants[socks.selectedVariant].id );
     }
     // const updateImage = (variantImage) => {
     //   socks.img = variantImage
@@ -89,9 +89,9 @@ export default {
       }
     });
 
-    const cartState = reactive({
-      cart: 0,
-    })
+    // const cartState = reactive({
+    //   cart: 0,
+    // })
     const externData = reactive({
       links: {
         google: 'https://google.com'
@@ -122,7 +122,7 @@ export default {
       productData,
       externData,
       socks,
-      cartState,
+      // cartState,
       addToCart,
       removeFromCart,
       title,
@@ -215,16 +215,6 @@ img {
 .disabledButton {
   background-color: #d8d8d8;
   cursor: not-allowed;
-}
-.cart {
-  margin: 25px 100px;
-  float: right;
-  border: 1px solid #d8d8d8;
-  padding: 10px 30px;
-  background-color: white;
-  -webkit-box-shadow: 0px 2px 15px -12px rgba(0, 0, 0, 0.57);
-  -moz-box-shadow: 0px 2px 15px -12px rgba(0, 0, 0, 0.57);
-  box-shadow: 2px 15px -12px rgba(0, 0, 0, 0.57);
 }
 
 </style>
